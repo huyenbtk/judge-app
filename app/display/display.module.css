@@ -1,0 +1,318 @@
+.displayRoot {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── Top bar ────────────────────────────────────────────── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoEmoji {
+  font-size: 1.8rem;
+}
+
+.logoText {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.teamSelectorWrap {
+  min-width: 240px;
+}
+
+.teamSelect {
+  font-size: 0.95rem !important;
+  padding: 10px 40px 10px 14px !important;
+}
+
+/* ─── Main ───────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 40px;
+  gap: 28px;
+  position: relative;
+}
+
+/* ─── Empty state ────────────────────────────────────────── */
+.emptyState {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding-top: 32px;
+}
+
+.emptyIcon {
+  font-size: 3.5rem;
+  opacity: 0.8;
+}
+
+.emptyTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+
+.emptyDesc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* ─── Stats table ────────────────────────────────────────── */
+.statsWrap {
+  width: 100%;
+  max-width: 600px;
+}
+
+.statsTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.statsHeader {
+  display: grid;
+  grid-template-columns: 52px 1fr 100px 110px;
+  padding: 6px 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: 52px 1fr 100px 110px;
+  align-items: center;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: var(--text);
+  animation: fadeInUp 0.4s ease both;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.statsRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
+}
+
+.statsRowComplete {
+  border-color: rgba(187, 0, 22, 0.3);
+  background: rgba(187, 0, 22, 0.05);
+}
+
+.statsRowFirst {
+  border-color: rgba(255, 215, 0, 0.45) !important;
+  background: rgba(255, 215, 0, 0.07) !important;
+  box-shadow: 0 0 24px rgba(255, 215, 0, 0.1);
+}
+
+.statsColRank {
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.rankNum {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.statsColTeam {
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  font-size: 1rem;
+}
+
+.statsColJudged,
+.statsColTotal {
+  text-align: center;
+}
+
+.judgedBadge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-muted);
+}
+
+.judgedComplete {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.totalGold {
+  color: var(--gold, #ffd700);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.totalPending {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.dash {
+  color: var(--text-muted);
+  opacity: 0.35;
+  font-size: 1.1rem;
+}
+
+
+
+/* ─── Team title ─────────────────────────────────────────── */
+.teamTitle {
+  width: 100%;
+  max-width: 960px;
+  text-align: center;
+}
+
+.teamTitleInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.teamName {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+/* Progress bar */
+.progressWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.progressText {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Grid ───────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ─── Total panel ────────────────────────────────────────── */
+.totalPanel {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 32px;
+  text-align: center;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.15) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.totalLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+
+.totalScore {
+  font-size: clamp(4rem, 12vw, 6rem);
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  animation: glow 1.5s ease-in-out infinite, scoreReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.totalSub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.totalSub strong {
+  color: var(--text);
+  font-weight: 600;
+}

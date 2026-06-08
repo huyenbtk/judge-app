@@ -1,0 +1,195 @@
+/* ─── Card ───────────────────────────────────────────────── */
+.card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    animation: fadeInUp 0.5s ease both;
+    border: 2px solid rgba(187, 0, 22, 0.35);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    background: #0a0a0a;
+    cursor: default;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(187, 0, 22, 0.4);
+}
+
+.revealed {
+    border-color: rgba(255, 215, 0, 0.45) !important;
+    box-shadow: 0 0 24px rgba(255, 215, 0, 0.15) !important;
+}
+
+/* ─── Photo area ─────────────────────────────────────────── */
+.photoWrap {
+    position: relative;
+    width: 100%;
+    /* 3:4 portrait ratio */
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.photoFallback {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a0005, #3d000a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photoInitial {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Red vignette from bottom */
+.vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+            rgba(100, 0, 10, 0.72) 0%,
+            rgba(60, 0, 8, 0.35) 35%,
+            transparent 65%);
+    pointer-events: none;
+}
+
+/* ─── Score badge (center-bottom) ───────────────────────── */
+.scoreBadge {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.7);
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 215, 0, 0.55);
+    border-radius: 10px;
+    padding: 6px 14px 5px;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.scoreBadgeReveal {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.scoreBadgeValue {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--gold, #ffd700);
+    line-height: 1;
+}
+
+.scoreBadgeUnit {
+    font-size: 0.75rem;
+    color: rgba(255, 215, 0, 0.65);
+    font-weight: 500;
+}
+
+.checkBadge {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 18px;
+    height: 18px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 2px solid #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* ─── Pending overlay ────────────────────────────────────── */
+.pendingOverlay {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.pendingDots {
+    display: flex;
+    gap: 4px;
+}
+
+.pendingDots span {
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: pendingBounce 1.2s ease-in-out infinite;
+}
+
+.pendingDots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.pendingDots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* ─── Name bar ───────────────────────────────────────────── */
+.nameBar {
+    padding: 10px 10px 11px;
+    background: rgba(8, 0, 2, 0.92);
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 44px;
+}
+
+.namePrefix {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+.nameBold {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+}
+
+/* ─── Keyframes ──────────────────────────────────────────── */
+@keyframes pendingBounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0.7);
+        opacity: 0.4;
+    }
+
+    40% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
