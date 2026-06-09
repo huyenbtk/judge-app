@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getTeams, getScore, submitScore } from "@/lib/firestore";
 import type { Team } from "@/lib/firestore";
@@ -9,65 +9,122 @@ import styles from "./judge.module.css";
 export default function JudgePage() {
   const router = useRouter();
 
-  // Auth
-  const [judgeId, setJudgeId] = useState(() =>
-    typeof window !== "undefined" ? sessionStorage.getItem("judgeId") || "" : ""
+  // Auth – read once from sessionStorage
+  const [judgeId] = useState(() =>
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("judgeId") || ""
+      : "",
   );
-  const [judgeName, setJudgeName] = useState(() =>
-    typeof window !== "undefined" ? sessionStorage.getItem("judgeName") || "" : ""
+  const [judgeName] = useState(() =>
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("judgeName") || ""
+      : "",
   );
 
   // Data
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState("");
-  const [score, setScore] = useState<number>(25);
+  const [score, setScore] = useState<number>(0);
   const [existingScore, setExistingScore] = useState<number | null>(null);
 
   // UI
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !!judgeId);
+  const [loadError, setLoadError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [checkingScore, setCheckingScore] = useState(false);
   const [error, setError] = useState("");
 
-  // Verify session
+  // Race-condition guard for getScore
+  const scoreRequestRef = useRef(0);
+
+  // ─── Verify session ────────────────────────────────────────
   useEffect(() => {
     if (!judgeId || !judgeName) {
       router.replace("/");
     }
   }, [judgeId, judgeName, router]);
 
-  // Load teams
+  // ─── Load teams ────────────────────────────────────────────
   useEffect(() => {
     if (!judgeId) return;
+
+    let cancelled = false;
+
     getTeams()
       .then((t) => {
+        if (cancelled) return;
         const sorted = [...t].sort((a, b) => a.id.localeCompare(b.id));
         setTeams(sorted);
       })
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (cancelled) return;
+        setLoadError("Không thể tải danh sách đội. Vui lòng tải lại trang.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [judgeId]);
 
-  // Check existing score when team changes
+  // ─── Check existing score when team changes ────────────────
   useEffect(() => {
     if (!judgeId || !selectedTeamId) {
       return;
     }
 
-    getScore(judgeId, selectedTeamId).then((s) => {
-      if (s !== null) {
-        setExistingScore(s.score);
-        setScore(s.score);
-        setSubmitted(true);
-      } else {
+    // Increment request counter to detect stale responses
+    const requestId = ++scoreRequestRef.current;
+
+    getScore(judgeId, selectedTeamId)
+      .then((s) => {
+        // Ignore if user already switched to another team
+        if (requestId !== scoreRequestRef.current) return;
+
+        if (s !== null) {
+          setExistingScore(s.score);
+          setScore(s.score);
+          setSubmitted(true);
+        } else {
+          setExistingScore(null);
+          setScore(0);
+          setSubmitted(false);
+        }
+      })
+      .catch(() => {
+        if (requestId !== scoreRequestRef.current) return;
+        setError("Không thể kiểm tra điểm. Vui lòng chọn lại đội.");
         setExistingScore(null);
-        setScore(25);
         setSubmitted(false);
-      }
-      setCheckingScore(false);
-    });
+      })
+      .finally(() => {
+        if (requestId !== scoreRequestRef.current) return;
+        setCheckingScore(false);
+      });
   }, [judgeId, selectedTeamId]);
 
+  // ─── Handle team selection ─────────────────────────────────
+  const handleTeamChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const val = e.target.value;
+      setSelectedTeamId(val);
+      setError("");
+      if (val) {
+        setCheckingScore(true);
+      } else {
+        setExistingScore(null);
+        setSubmitted(false);
+        setCheckingScore(false);
+      }
+      // checkingScore will be set to true by the useEffect above
+    },
+    [],
+  );
+
+  // ─── Submit score ──────────────────────────────────────────
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedTeamId || submitting) return;
@@ -91,6 +148,7 @@ export default function JudgePage() {
 
   const selectedTeam = teams.find((t) => t.id === selectedTeamId);
 
+  // ─── Loading state ─────────────────────────────────────────
   if (loading) {
     return (
       <main className="page">
@@ -104,6 +162,24 @@ export default function JudgePage() {
     );
   }
 
+  // ─── Load error state ──────────────────────────────────────
+  if (loadError) {
+    return (
+      <main className="page">
+        <div className={styles.loadingWrap}>
+          <p className={styles.errorMsg}>⚠ {loadError}</p>
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: 16 }}
+            onClick={() => window.location.reload()}
+          >
+            Tải lại trang
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main
       className="page"
@@ -112,7 +188,6 @@ export default function JudgePage() {
       {/* Header bar */}
       <header className={`${styles.headerBar} animate-fadeInUp`}>
         <div className={styles.judgeInfo}>
-          <div className={styles.judgeAvatar}>{judgeName.charAt(0)}</div>
           <div>
             <p className={styles.judgeLabel}>Giám khảo</p>
             <p className={styles.judgeName}>{judgeName}</p>
@@ -136,21 +211,10 @@ export default function JudgePage() {
         <select
           className="select"
           value={selectedTeamId}
-          onChange={(e) => {
-            const val = e.target.value;
-            setSelectedTeamId(val);
-            if (val) {
-              setCheckingScore(true);
-              setSubmitted(false);
-            } else {
-              setExistingScore(null);
-              setSubmitted(false);
-              setCheckingScore(false);
-            }
-          }}
+          onChange={handleTeamChange}
           disabled={submitting}
         >
-          <option value="">— Chọn đội —</option>
+          <option value="">Chọn đội</option>
           {teams.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
@@ -176,6 +240,8 @@ export default function JudgePage() {
                 <span>🎤</span>
                 <span>{selectedTeam?.name}</span>
               </div>
+
+              {error && <p className={styles.errorMsg}>⚠ {error}</p>}
 
               {submitted && existingScore !== null ? (
                 /* ─── Locked: already scored ─── */
@@ -212,7 +278,7 @@ export default function JudgePage() {
 
                   {/* Quick pick */}
                   <div className={styles.quickPick}>
-                    {[30, 35, 40, 42, 45, 48, 50].map((v) => (
+                    {[30, 35, 40, 45, 50].map((v) => (
                       <button
                         key={v}
                         type="button"
@@ -244,8 +310,6 @@ export default function JudgePage() {
                       disabled={submitting}
                     />
                   </div>
-
-                  {error && <p className={styles.errorMsg}>⚠ {error}</p>}
 
                   <button
                     type="submit"

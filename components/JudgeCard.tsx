@@ -14,8 +14,13 @@ function useCountUp(target: number | null, duration = 1200) {
   const [display, setDisplay] = useState(0);
   const prevTarget = useRef<number | null>(null);
 
+  // Reset when target is cleared (adjusting state during render – allowed in React 19)
+  if (target === null && display !== 0) {
+    setDisplay(0);
+  }
+
   useEffect(() => {
-    if (target === null) { setDisplay(0); return; }
+    if (target === null) return;
     if (prevTarget.current === target) return;
     prevTarget.current = target;
 
@@ -50,12 +55,16 @@ export default function JudgeCard({ judge, score, index }: Props) {
   const [revealed, setRevealed] = useState(false);
   const { prefix, rest } = splitName(judge.name);
 
+  // Reset when score is removed (adjusting state during render – allowed in React 19)
+  if (!hasScore && revealed) {
+    setRevealed(false);
+  }
+
   useEffect(() => {
     if (hasScore && !revealed) {
       const t = setTimeout(() => setRevealed(true), 100);
       return () => clearTimeout(t);
     }
-    if (!hasScore) setRevealed(false);
   }, [hasScore, revealed]);
 
   return (
